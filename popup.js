@@ -1,21 +1,9 @@
-function setup(){
 
-    let params = {
-        active: true,
-        currentWindow: true
-    }
+let h1 = document.getElementsByTagName('span')[0];
 
-    userinput.onkeydown = function(){
-        chrome.tabs.query(params, gotTabs);
 
-        function gotTabs(tabs){
-            let msg = {
-                txt: userinput.value
-            }
-            chrome.tabs.sendMessage(tabs[0].id, msg)
-        }
-    }
-   
-}
-
-setup();
+let bgpage = chrome.extension.getBackgroundPage();
+setInterval(()=>{
+    let word = bgpage.time;
+    h1.innerHTML = word;
+})
