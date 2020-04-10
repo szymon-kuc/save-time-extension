@@ -1,30 +1,32 @@
 console.log("background running!");
 
-
-window.time = 0;
-let minutes = 0;
-let hours = 0;
-let i =0;
+var localStorage = localStorage.getItem("time");
+let time_local = {
+    seconds: JSON.parse(localStorage.time).seconds == undefined ? 0 : JSON.parse(localStorage.time).seconds,
+    minutes: JSON.parse(localStorage.time).minutes == undefined ? 0 : JSON.parse(localStorage.time).minutes,
+    hours: JSON.parse(localStorage.time).hours == undefined ? 0 : JSON.parse(localStorage.time).hours
+}
+window.time = localStorage === null ? 0 : (time_local.hours < 10 ? ("0"+time_local.hours) : time_local.hours) + ":" + (time_local.minutes < 10 ? ("0"+time_local.minutes) : time_local.minutes) + ":" + (time_local.seconds < 10 ? ("0"+time_local.seconds) : time_local.seconds);
 let interval;
 let counter = () => {
-    i++;
+    time_local.seconds++;
     
-    if(i > 59){
-        minutes++;
-        i = 0;
+    if(time_local.seconds > 59){
+        time_local.minutes++;
+        time_local.seconds = 0;
+        localStorage.setItem('time', JSON.stringify(time_local));
     }
-    if(minutes > 59){
-        hours++;
-        minutes = 0;
+    if(time_local.minutes > 59){
+        time_local.hours++;
+        time_local.minutes = 0;
     }
-    window.time = (hours < 10 ? ("0"+hours) : hours) + ":" + (minutes < 10 ? ("0"+minutes) : minutes) + ":" + (i < 10 ? ("0"+i) : i);
-    console.log(i);
-    
+    window.time = (time_local.hours < 10 ? ("0"+time_local.hours) : time_local.hours) + ":" + (time_local.minutes < 10 ? ("0"+time_local.minutes) : time_local.minutes) + ":" + (time_local.seconds < 10 ? ("0"+time_local.seconds) : time_local.seconds);
+    console.log(time_local.seconds);
 }
 
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-    
+chrome.tabs.onActivated.addListener(getUrl);;
 
+function getUrl() {
     chrome.tabs.query(
         {
          lastFocusedWindow: true,
@@ -41,9 +43,12 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
                  clearInterval(interval);
             }
         });
-        
-});
-
+}
+getUrl();
+chrome.tabs.onRemoved.addListener(function(tabid, removed) {
+        localStorage.setItem('time', JSON.stringify(time_local));
+   })
+   
 
 
 
